@@ -1,8 +1,9 @@
-export { ProxyPayProvider, useProxyPay } from "./ProxyPayProvider";
-export { PixPayment } from "./PixPayment";
-export { InvoicePayment } from "./InvoicePayment";
-export { BillingPayment } from "./BillingPayment";
-export { PaymentMethod, BillingFrequency } from "./types";
+export { ProxyPayProvider } from "./contexts/ProxyPayContext";
+export { useProxyPay } from "./hooks/useProxyPay";
+export { PixPayment } from "./components/PixPayment";
+export { InvoicePayment } from "./components/InvoicePayment";
+export { BillingPayment } from "./components/BillingPayment";
+export { PaymentMethod, BillingFrequency } from "./types/payment";
 export type {
   ProxyPayConfig,
   ProxyPayContextValue,
@@ -20,4 +21,4 @@ export type {
   BillingPaymentProps,
   InvoicePaymentProps,
   PixPaymentProps,
-} from "./types";
+} from "./types/payment";

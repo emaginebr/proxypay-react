@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useProxyPay } from "./ProxyPayProvider";
+import { useProxyPay } from "../hooks/useProxyPay";
 import type {
   PixPaymentProps,
   QRCodeResponse,
   QRCodeStatusResponse,
-} from "./types";
+} from "../types/payment";
 
 type ModalState =
   | { step: "closed" }
@@ -298,7 +298,7 @@ export function PixPayment({
                 color: "#6b7280",
               }}
             >
-              Ou copie o código PIX:
+              Ou copie o codigo PIX:
             </p>
 
             <div

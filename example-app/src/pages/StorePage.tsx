@@ -1,85 +1,63 @@
 import { useState, useEffect } from "react";
-import { useNAuth } from "nauth-react";
-import {
-  fetchMyStore,
-  createStore,
-  updateStore,
-  deleteStore,
-  type StoreInfo,
-} from "../services/adminApi";
+import { useStore } from "../hooks/useStore";
 
 export function StorePage() {
-  const { token } = useNAuth();
-  const [store, setStore] = useState<StoreInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { store, loading, error, createStore, updateStore, deleteStore } = useStore();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [localError, setLocalError] = useState("");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [billingStrategy, setBillingStrategy] = useState(1);
 
   useEffect(() => {
-    if (!token) return;
-    fetchMyStore(token)
-      .then((s) => {
-        setStore(s);
-        if (s) {
-          setName(s.name);
-          setEmail(s.email);
-          setBillingStrategy(s.billingStrategy);
-        }
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [token]);
+    if (store) {
+      setName(store.name);
+      setEmail(store.email);
+      setBillingStrategy(store.billingStrategy);
+    }
+  }, [store]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
-    setError("");
+    setLocalError("");
     setSuccess("");
     setSaving(true);
 
     try {
       if (store) {
-        await updateStore(token, {
+        await updateStore({
           storeId: store.storeId,
           name,
           email,
           billingStrategy,
         });
         setSuccess("Loja atualizada com sucesso!");
-        const updated = await fetchMyStore(token);
-        setStore(updated);
       } else {
-        const result = await createStore(token, { name, email, billingStrategy });
+        const result = await createStore({ name, email, billingStrategy });
         setSuccess(`Loja criada! Client ID: ${result.clientId}`);
-        const created = await fetchMyStore(token);
-        setStore(created);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar");
+      setLocalError(err instanceof Error ? err.message : "Erro ao salvar");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!token || !store) return;
+    if (!store) return;
     if (!confirm("Tem certeza que deseja excluir a loja?")) return;
-    setError("");
+    setLocalError("");
     setSaving(true);
     try {
-      await deleteStore(token, store.storeId);
-      setStore(null);
+      await deleteStore(store.storeId);
       setName("");
       setEmail("");
       setBillingStrategy(1);
       setSuccess("Loja excluida com sucesso.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao excluir");
+      setLocalError(err instanceof Error ? err.message : "Erro ao excluir");
     } finally {
       setSaving(false);
     }
@@ -87,11 +65,13 @@ export function StorePage() {
 
   if (loading) return <div className="page admin-page"><p>Carregando...</p></div>;
 
+  const displayError = localError || error;
+
   return (
     <div className="page admin-page">
       <h1>{store ? "Configurar Loja" : "Criar Loja"}</h1>
 
-      {error && <div className="admin-error">{error}</div>}
+      {displayError && <div className="admin-error">{displayError}</div>}
       {success && <div className="admin-success">{success}</div>}
 
       {store && (

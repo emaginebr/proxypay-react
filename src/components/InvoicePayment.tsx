@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { useProxyPay } from "./ProxyPayProvider";
-import { PaymentMethod } from "./types";
-import type { InvoicePaymentProps } from "./types";
+import { useProxyPay } from "../hooks/useProxyPay";
+import { PaymentMethod } from "../types/payment";
+import type { InvoicePaymentProps } from "../types/payment";
 
 export function InvoicePayment({
   customer,

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNAuth } from "nauth-react";
-import { fetchMyBillings, type BillingRow } from "../services/adminApi";
+import { useBilling } from "../hooks/useBilling";
 
 const frequencyLabels: Record<number, string> = {
   1: "Mensal",
@@ -17,21 +16,13 @@ const paymentLabels: Record<number, string> = {
 };
 
 export function BillingsPage() {
-  const { token } = useNAuth();
-  const [billings, setBillings] = useState<BillingRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { billings, loading, error, loadBillings } = useBilling();
   const [page, setPage] = useState(0);
   const pageSize = 20;
 
   useEffect(() => {
-    if (!token) return;
-    setLoading(true);
-    fetchMyBillings(token, page * pageSize, pageSize)
-      .then(setBillings)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [token, page]);
+    loadBillings(page * pageSize, pageSize);
+  }, [loadBillings, page]);
 
   return (
     <div className="page admin-page">

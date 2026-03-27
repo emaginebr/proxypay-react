@@ -1,23 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNAuth } from "nauth-react";
-import { fetchMyCustomers, type CustomerRow } from "../services/adminApi";
+import { useCustomer } from "../hooks/useCustomer";
 
 export function CustomersPage() {
-  const { token } = useNAuth();
-  const [customers, setCustomers] = useState<CustomerRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { customers, loading, error, loadCustomers } = useCustomer();
   const [page, setPage] = useState(0);
   const pageSize = 20;
 
   useEffect(() => {
-    if (!token) return;
-    setLoading(true);
-    fetchMyCustomers(token, page * pageSize, pageSize)
-      .then(setCustomers)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [token, page]);
+    loadCustomers(page * pageSize, pageSize);
+  }, [loadCustomers, page]);
 
   return (
     <div className="page admin-page">

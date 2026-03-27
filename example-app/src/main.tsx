@@ -3,7 +3,12 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { NAuthProvider, useProtectedRoute, useNAuth } from "nauth-react";
 import "nauth-react/styles";
-import { StoreProvider, useStore } from "./services/StoreContext";
+import { StoreProvider } from "./contexts/StoreContext";
+import { BalanceProvider } from "./contexts/BalanceContext";
+import { CustomerProvider } from "./contexts/CustomerContext";
+import { InvoiceProvider } from "./contexts/InvoiceContext";
+import { BillingProvider } from "./contexts/BillingContext";
+import { useStore } from "./hooks/useStore";
 import { Layout } from "./Layout";
 import { Home } from "./pages/Home";
 import { Docs } from "./pages/Docs";
@@ -26,11 +31,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function RequireStore({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useNAuth();
-  const { store, isLoading } = useStore();
+  const { store, loading } = useStore();
   const location = useLocation();
 
   if (!isAuthenticated) return <>{children}</>;
-  if (isLoading) return <div className="page" style={{ textAlign: "center", paddingTop: "80px" }}><p>Carregando...</p></div>;
+  if (loading) return <div className="page" style={{ textAlign: "center", paddingTop: "80px" }}><p>Carregando...</p></div>;
 
   const isStoreRoute = location.pathname === "/admin/store";
   const isPublicRoute = ["/", "/docs", "/login", "/signup"].includes(location.pathname);
@@ -53,24 +58,32 @@ createRoot(document.getElementById("root")!).render(
         }}
       >
         <StoreProvider>
-          <RequireStore>
-            <Routes>
-              <Route element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="docs" element={<Docs />} />
-                <Route path="login" element={<Login />} />
-                <Route path="signup" element={<Signup />} />
-                <Route path="admin/store" element={<ProtectedRoute><StorePage /></ProtectedRoute>} />
-                <Route path="demo/pix" element={<ProtectedRoute><DemoPix /></ProtectedRoute>} />
-                <Route path="demo/invoice" element={<ProtectedRoute><DemoInvoice /></ProtectedRoute>} />
-                <Route path="demo/billing" element={<ProtectedRoute><DemoBilling /></ProtectedRoute>} />
-                <Route path="admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="admin/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
-                <Route path="admin/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
-                <Route path="admin/billings" element={<ProtectedRoute><BillingsPage /></ProtectedRoute>} />
-              </Route>
-            </Routes>
-          </RequireStore>
+          <BalanceProvider>
+            <CustomerProvider>
+              <InvoiceProvider>
+                <BillingProvider>
+                  <RequireStore>
+                    <Routes>
+                      <Route element={<Layout />}>
+                        <Route index element={<Home />} />
+                        <Route path="docs" element={<Docs />} />
+                        <Route path="login" element={<Login />} />
+                        <Route path="signup" element={<Signup />} />
+                        <Route path="admin/store" element={<ProtectedRoute><StorePage /></ProtectedRoute>} />
+                        <Route path="demo/pix" element={<ProtectedRoute><DemoPix /></ProtectedRoute>} />
+                        <Route path="demo/invoice" element={<ProtectedRoute><DemoInvoice /></ProtectedRoute>} />
+                        <Route path="demo/billing" element={<ProtectedRoute><DemoBilling /></ProtectedRoute>} />
+                        <Route path="admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                        <Route path="admin/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+                        <Route path="admin/invoices" element={<ProtectedRoute><InvoicesPage /></ProtectedRoute>} />
+                        <Route path="admin/billings" element={<ProtectedRoute><BillingsPage /></ProtectedRoute>} />
+                      </Route>
+                    </Routes>
+                  </RequireStore>
+                </BillingProvider>
+              </InvoiceProvider>
+            </CustomerProvider>
+          </BalanceProvider>
         </StoreProvider>
       </NAuthProvider>
     </BrowserRouter>

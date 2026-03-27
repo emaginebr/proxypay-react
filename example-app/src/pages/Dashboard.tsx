@@ -1,26 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useNAuth } from "nauth-react";
-import { fetchMyBalance, fetchMyStore, type BalanceInfo, type StoreInfo } from "../services/adminApi";
+import { useStore } from "../hooks/useStore";
+import { useBalance } from "../hooks/useBalance";
 
 export function Dashboard() {
-  const { token } = useNAuth();
-  const [balance, setBalance] = useState<BalanceInfo | null>(null);
-  const [store, setStore] = useState<StoreInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { store } = useStore();
+  const { balance, loading, error, loadBalance } = useBalance();
 
   useEffect(() => {
-    if (!token) return;
-    setLoading(true);
-    Promise.all([fetchMyBalance(token), fetchMyStore(token)])
-      .then(([b, s]) => {
-        setBalance(b);
-        setStore(s);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [token]);
+    loadBalance();
+  }, [loadBalance]);
 
   if (loading) return <div className="page admin-page"><p>Carregando...</p></div>;
   if (error) return <div className="page admin-page"><p className="admin-error">{error}</p></div>;

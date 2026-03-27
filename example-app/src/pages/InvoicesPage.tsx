@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNAuth } from "nauth-react";
-import { fetchMyInvoices, type InvoiceRow } from "../services/adminApi";
+import { useInvoice } from "../hooks/useInvoice";
 
 const statusColors: Record<string, string> = {
   Pending: "badge-warning",
@@ -12,21 +11,13 @@ const statusColors: Record<string, string> = {
 };
 
 export function InvoicesPage() {
-  const { token } = useNAuth();
-  const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { invoices, loading, error, loadInvoices } = useInvoice();
   const [page, setPage] = useState(0);
   const pageSize = 20;
 
   useEffect(() => {
-    if (!token) return;
-    setLoading(true);
-    fetchMyInvoices(token, page * pageSize, pageSize)
-      .then(setInvoices)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [token, page]);
+    loadInvoices(page * pageSize, pageSize);
+  }, [loadInvoices, page]);
 
   return (
     <div className="page admin-page">
