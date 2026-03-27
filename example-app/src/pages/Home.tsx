@@ -8,7 +8,6 @@ export function Home() {
         <h1>ProxyPay React</h1>
         <p className="hero-subtitle">
           Componentes React prontos para integrar pagamentos via ProxyPay.
-          <br />
           PIX com QR Code, Invoice com redirecionamento, polling de status e
           modal — tudo em um pacote leve e tipado.
         </p>
