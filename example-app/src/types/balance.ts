@@ -9,8 +9,10 @@ export interface BalanceInfo {
 
 export interface TransactionRow {
   transactionId: number;
-  type: string;
+  type: number;
+  category: number;
   amount: number;
+  balance: number;
   description: string;
   createdAt: string;
 }

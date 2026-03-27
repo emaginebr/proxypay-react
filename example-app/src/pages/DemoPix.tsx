@@ -15,16 +15,16 @@ const config = {
 
 export function DemoPix() {
   const [customer, setCustomer] = useState<CustomerInfo>({
-    name: "Joao Silva",
+    name: "John Doe",
     documentId: "12345678900",
     cellphone: "11999999999",
-    email: "joao@email.com",
+    email: "john@email.com",
   });
 
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: "PROD-001",
-      description: "Camiseta ProxyPay",
+      description: "ProxyPay T-Shirt",
       quantity: 1,
       unitPrice: 49.9,
       discount: 0,
@@ -38,7 +38,7 @@ export function DemoPix() {
   const [log, setLog] = useState<string[]>([]);
 
   const addLog = (msg: string) => {
-    const time = new Date().toLocaleTimeString("pt-BR");
+    const time = new Date().toLocaleTimeString("en-US");
     setLog((prev) => [`[${time}] ${msg}`, ...prev].slice(0, 20));
   };
 
@@ -62,19 +62,19 @@ export function DemoPix() {
   return (
     <ProxyPayProvider config={config}>
       <div className="page demo-page">
-        <h1>Demo Interativa</h1>
+        <h1>Interactive Demo</h1>
         <p className="demo-intro">
-          Configure os dados abaixo e clique no botao para testar o componente
-          <code> PixPayment</code> em tempo real.
+          Configure the data below and click the button to test the
+          <code> PixPayment</code> component in real time.
         </p>
 
         <div className="demo-grid">
           {/* Form */}
           <div className="demo-form">
-            <h2>Dados do Cliente</h2>
+            <h2>Customer Data</h2>
             <div className="form-grid">
               <label>
-                <span>Nome</span>
+                <span>Name</span>
                 <input
                   type="text"
                   value={customer.name}
@@ -84,7 +84,7 @@ export function DemoPix() {
                 />
               </label>
               <label>
-                <span>CPF</span>
+                <span>Document ID</span>
                 <input
                   type="text"
                   value={customer.documentId}
@@ -95,7 +95,7 @@ export function DemoPix() {
                 />
               </label>
               <label>
-                <span>Telefone</span>
+                <span>Phone</span>
                 <input
                   type="text"
                   value={customer.cellphone}
@@ -119,7 +119,7 @@ export function DemoPix() {
             <h2>Item</h2>
             <div className="form-grid">
               <label>
-                <span>Descricao</span>
+                <span>Description</span>
                 <input
                   type="text"
                   value={items[0].description}
@@ -127,7 +127,7 @@ export function DemoPix() {
                 />
               </label>
               <label>
-                <span>Preco (R$)</span>
+                <span>Price (R$)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -136,7 +136,7 @@ export function DemoPix() {
                 />
               </label>
               <label>
-                <span>Quantidade</span>
+                <span>Quantity</span>
                 <input
                   type="number"
                   min="1"
@@ -145,7 +145,7 @@ export function DemoPix() {
                 />
               </label>
               <label>
-                <span>Desconto (R$)</span>
+                <span>Discount (R$)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -155,7 +155,7 @@ export function DemoPix() {
               </label>
             </div>
 
-            <h2>Configuracao</h2>
+            <h2>Configuration</h2>
             <label>
               <span>Polling Interval (ms)</span>
               <input
@@ -175,18 +175,18 @@ export function DemoPix() {
               customer={customer}
               items={items}
               pollInterval={pollInterval}
-              modalTitle="Pagamento PIX - Demo"
+              modalTitle="PIX Payment - Demo"
               onSuccess={(status) => {
                 setLastStatus(status);
-                addLog(`Pago! Invoice: ${status.invoiceNumber}`);
+                addLog(`Paid! Invoice: ${status.invoiceNumber}`);
               }}
-              onError={(err) => addLog(`Erro: ${err.message}`)}
+              onError={(err) => addLog(`Error: ${err.message}`)}
               onStatusChange={(status) =>
                 addLog(`Status: ${status.statusText}`)
               }
             >
               <button className="btn btn-primary demo-pay-btn">
-                Pagar R$ {total.toFixed(2)} com PIX
+                Pay R$ {total.toFixed(2)} with PIX
               </button>
             </PixPayment>
           </div>
@@ -196,13 +196,13 @@ export function DemoPix() {
             <h2>Event Log</h2>
             {lastStatus && (
               <div className="demo-status-badge">
-                Ultimo status: <strong>{lastStatus.statusText}</strong>
+                Last status: <strong>{lastStatus.statusText}</strong>
               </div>
             )}
             <div className="log-entries">
               {log.length === 0 && (
                 <p className="log-empty">
-                  Clique em "Pagar" para ver os eventos aqui.
+                  Click "Pay" to see events here.
                 </p>
               )}
               {log.map((entry, i) => (

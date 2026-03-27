@@ -201,13 +201,14 @@ export function PixPayment({
           !modalClassName
             ? {
                 background: "#fff",
-                borderRadius: "12px",
-                padding: "32px",
-                maxWidth: "400px",
+                borderRadius: "16px",
+                padding: "40px 32px",
+                maxWidth: "440px",
                 width: "90%",
                 position: "relative",
                 textAlign: "center",
                 fontFamily: "system-ui, -apple-system, sans-serif",
+                boxShadow: "0 25px 60px rgba(0, 0, 0, 0.15)",
               }
             : undefined
         }
@@ -217,14 +218,20 @@ export function PixPayment({
           onClick={closeModal}
           style={{
             position: "absolute",
-            top: "12px",
+            top: "16px",
             right: "16px",
-            background: "none",
+            background: "#f1f5f9",
             border: "none",
-            fontSize: "20px",
+            fontSize: "16px",
             cursor: "pointer",
-            color: "#6b7280",
+            color: "#64748b",
             lineHeight: 1,
+            width: "32px",
+            height: "32px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
           aria-label="Fechar"
         >
@@ -233,27 +240,53 @@ export function PixPayment({
 
         {/* Loading */}
         {state.step === "loading" && (
-          <p style={{ padding: "40px 0", color: "#6b7280" }}>
-            Gerando QR Code...
-          </p>
+          <div style={{ padding: "48px 0" }}>
+            <div style={{
+              width: "40px",
+              height: "40px",
+              border: "3px solid #e2e8f0",
+              borderTopColor: "#10b981",
+              borderRadius: "50%",
+              animation: "proxypay-spin 0.8s linear infinite",
+              margin: "0 auto 16px",
+            }} />
+            <style>{`@keyframes proxypay-spin { to { transform: rotate(360deg) } }`}</style>
+            <p style={{ color: "#64748b", fontSize: "15px", margin: 0 }}>
+              Gerando QR Code...
+            </p>
+          </div>
         )}
 
         {/* Error */}
         {state.step === "error" && (
-          <div>
-            <p style={{ color: "#dc2626", marginBottom: "16px" }}>
+          <div style={{ padding: "16px 0" }}>
+            <div style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              background: "#fef2f2",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+              fontSize: "24px",
+            }}>
+              !
+            </div>
+            <p style={{ color: "#dc2626", marginBottom: "20px", fontSize: "15px" }}>
               {state.error.message}
             </p>
             <button
               onClick={handleOpen}
               style={{
-                background: "#3b82f6",
+                background: "#10b981",
                 color: "#fff",
                 border: "none",
-                padding: "10px 24px",
-                borderRadius: "6px",
+                padding: "12px 28px",
+                borderRadius: "10px",
                 cursor: "pointer",
                 fontSize: "14px",
+                fontWeight: 600,
               }}
             >
               Tentar novamente
@@ -264,91 +297,135 @@ export function PixPayment({
         {/* QR Code */}
         {state.step === "qrcode" && (
           <>
-            <h2 style={{ margin: "0 0 20px", fontSize: "18px" }}>
+            <h2 style={{
+              margin: "0 0 24px",
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#0f172a",
+            }}>
               {modalTitle}
             </h2>
 
-            <img
-              src={state.data.brCodeBase64}
-              alt="QR Code PIX"
-              style={{
-                width: "220px",
-                height: "220px",
-                borderRadius: "8px",
-              }}
-            />
+            <div style={{
+              display: "inline-block",
+              padding: "16px",
+              background: "#f8fafc",
+              borderRadius: "16px",
+              border: "1px solid #e2e8f0",
+            }}>
+              <img
+                src={state.data.brCodeBase64}
+                alt="QR Code PIX"
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  display: "block",
+                  borderRadius: "8px",
+                }}
+              />
+            </div>
 
             {timeLeft && (
-              <p
-                style={{
-                  margin: "12px 0 0",
-                  fontSize: "14px",
-                  color: "#6b7280",
-                }}
-              >
+              <p style={{
+                margin: "16px 0 0",
+                fontSize: "14px",
+                color: "#64748b",
+              }}>
                 Expira em:{" "}
-                <strong style={{ color: "#111827" }}>{timeLeft}</strong>
+                <strong style={{
+                  color: timeLeft === "Expirado" ? "#dc2626" : "#10b981",
+                  fontWeight: 700,
+                }}>{timeLeft}</strong>
               </p>
             )}
 
-            <p
-              style={{
-                margin: "16px 0 8px",
-                fontSize: "13px",
-                color: "#6b7280",
-              }}
-            >
-              Ou copie o codigo PIX:
+            <p style={{
+              margin: "20px 0 10px",
+              fontSize: "13px",
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontWeight: 600,
+            }}>
+              Codigo PIX copia e cola
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                alignItems: "center",
+            <div style={{
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "10px",
+              padding: "12px",
+              display: "flex",
+              gap: "10px",
+              alignItems: "center",
+            }}>
+              <div style={{
+                flex: 1,
+                minWidth: 0,
+                padding: "8px 12px",
+                background: "#fff",
+                border: "1px solid #e2e8f0",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontFamily: "monospace",
+                color: "#334155",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                cursor: "text",
+                userSelect: "all",
+                lineHeight: "1.5",
               }}
-            >
-              <input
-                type="text"
-                readOnly
-                value={state.data.brCode}
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  padding: "8px 12px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "6px",
-                  fontSize: "11px",
-                  fontFamily: "monospace",
+                title={state.data.brCode}
+                onClick={(e) => {
+                  const range = document.createRange();
+                  range.selectNodeContents(e.currentTarget);
+                  const sel = window.getSelection();
+                  sel?.removeAllRanges();
+                  sel?.addRange(range);
                 }}
-              />
+              >
+                {state.data.brCode}
+              </div>
               <button
                 onClick={() => handleCopy(state.data.brCode)}
                 style={{
-                  background: copied ? "#10b981" : "#3b82f6",
+                  background: copied ? "#10b981" : "#0f172a",
                   color: "#fff",
                   border: "none",
-                  padding: "8px 16px",
-                  borderRadius: "6px",
+                  padding: "10px 20px",
+                  borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "13px",
+                  fontWeight: 600,
                   whiteSpace: "nowrap",
                   transition: "background 0.2s",
+                  flexShrink: 0,
                 }}
               >
                 {copied ? "Copiado!" : "Copiar"}
               </button>
             </div>
 
-            <p
-              style={{
-                margin: "20px 0 0",
-                fontSize: "14px",
-                color: "#6b7280",
-              }}
-            >
+            <div style={{
+              margin: "24px 0 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              fontSize: "14px",
+              color: "#64748b",
+            }}>
+              <div style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                background: "#10b981",
+                animation: "proxypay-pulse 1.5s ease-in-out infinite",
+              }} />
+              <style>{`@keyframes proxypay-pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }`}</style>
               Aguardando pagamento...
-            </p>
+            </div>
           </>
         )}
       </div>

@@ -1,13 +1,23 @@
 import { useState, useEffect } from "react";
 import { useInvoice } from "../hooks/useInvoice";
+import { SkeletonTable } from "../components/Skeleton";
 
-const statusColors: Record<string, string> = {
-  Pending: "badge-warning",
-  Sent: "badge-info",
-  Paid: "badge-success",
-  Overdue: "badge-danger",
-  Cancelled: "badge-muted",
-  Expired: "badge-muted",
+const statusLabels: Record<number, string> = {
+  1: "Pending",
+  2: "Sent",
+  3: "Paid",
+  4: "Overdue",
+  5: "Cancelled",
+  6: "Expired",
+};
+
+const statusColors: Record<number, string> = {
+  1: "badge-warning",
+  2: "badge-info",
+  3: "badge-success",
+  4: "badge-danger",
+  5: "badge-muted",
+  6: "badge-muted",
 };
 
 export function InvoicesPage() {
@@ -21,25 +31,25 @@ export function InvoicesPage() {
 
   return (
     <div className="page admin-page">
-      <h1>Faturas</h1>
+      <h1>Invoices</h1>
 
       {error && <div className="admin-error">{error}</div>}
 
       {loading ? (
-        <p>Carregando...</p>
+        <SkeletonTable rows={5} cols={6} />
       ) : invoices.length === 0 ? (
-        <p className="admin-empty">Nenhuma fatura encontrada.</p>
+        <p className="admin-empty">No invoices found.</p>
       ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Numero</th>
-                <th>Valor</th>
+                <th>Number</th>
+                <th>Customer</th>
                 <th>Status</th>
-                <th>Criada em</th>
-                <th>Paga em</th>
+                <th>Due Date</th>
+                <th>Paid At</th>
               </tr>
             </thead>
             <tbody>
@@ -47,14 +57,14 @@ export function InvoicesPage() {
                 <tr key={inv.invoiceId}>
                   <td>{inv.invoiceId}</td>
                   <td><code>{inv.invoiceNumber}</code></td>
-                  <td>R$ {inv.amount.toFixed(2)}</td>
+                  <td>{inv.customer?.name ?? "—"}</td>
                   <td>
-                    <span className={`badge ${statusColors[inv.statusText] ?? ""}`}>
-                      {inv.statusText}
+                    <span className={`badge ${statusColors[inv.status] ?? ""}`}>
+                      {statusLabels[inv.status] ?? inv.status}
                     </span>
                   </td>
-                  <td>{new Date(inv.createdAt).toLocaleDateString("pt-BR")}</td>
-                  <td>{inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("pt-BR") : "—"}</td>
+                  <td>{new Date(inv.dueDate).toLocaleDateString("en-US")}</td>
+                  <td>{inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("en-US") : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -68,15 +78,15 @@ export function InvoicesPage() {
           disabled={page === 0}
           onClick={() => setPage((p) => p - 1)}
         >
-          Anterior
+          Previous
         </button>
-        <span>Pagina {page + 1}</span>
+        <span>Page {page + 1}</span>
         <button
           className="btn btn-secondary"
           disabled={invoices.length < pageSize}
           onClick={() => setPage((p) => p + 1)}
         >
-          Proxima
+          Next
         </button>
       </div>
     </div>

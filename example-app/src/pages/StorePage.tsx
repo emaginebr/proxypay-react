@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useStore } from "../hooks/useStore";
+import { Skeleton, SkeletonForm } from "../components/Skeleton";
 
 export function StorePage() {
   const { store, loading, error, createStore, updateStore, deleteStore } = useStore();
@@ -33,13 +34,13 @@ export function StorePage() {
           email,
           billingStrategy,
         });
-        setSuccess("Loja atualizada com sucesso!");
+        setSuccess("Store updated successfully!");
       } else {
         const result = await createStore({ name, email, billingStrategy });
-        setSuccess(`Loja criada! Client ID: ${result.clientId}`);
+        setSuccess(`Store created! Client ID: ${result.clientId}`);
       }
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Erro ao salvar");
+      setLocalError(err instanceof Error ? err.message : "Error saving");
     } finally {
       setSaving(false);
     }
@@ -47,7 +48,7 @@ export function StorePage() {
 
   const handleDelete = async () => {
     if (!store) return;
-    if (!confirm("Tem certeza que deseja excluir a loja?")) return;
+    if (!confirm("Are you sure you want to delete this store?")) return;
     setLocalError("");
     setSaving(true);
     try {
@@ -55,21 +56,26 @@ export function StorePage() {
       setName("");
       setEmail("");
       setBillingStrategy(1);
-      setSuccess("Loja excluida com sucesso.");
+      setSuccess("Store deleted successfully.");
     } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Erro ao excluir");
+      setLocalError(err instanceof Error ? err.message : "Error deleting");
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <div className="page admin-page"><p>Carregando...</p></div>;
+  if (loading) return (
+    <div className="page admin-page">
+      <Skeleton width="200px" height="28px" style={{ marginBottom: "24px" }} />
+      <SkeletonForm />
+    </div>
+  );
 
   const displayError = localError || error;
 
   return (
     <div className="page admin-page">
-      <h1>{store ? "Configurar Loja" : "Criar Loja"}</h1>
+      <h1>{store ? "Configure Store" : "Create Store"}</h1>
 
       {displayError && <div className="admin-error">{displayError}</div>}
       {success && <div className="admin-success">{success}</div>}
@@ -82,13 +88,13 @@ export function StorePage() {
 
       <form onSubmit={handleSubmit} className="admin-form">
         <label>
-          <span>Nome da Loja</span>
+          <span>Store Name</span>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            placeholder="Minha Loja"
+            placeholder="My Store"
           />
         </label>
         <label>
@@ -98,23 +104,23 @@ export function StorePage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="loja@email.com"
+            placeholder="store@email.com"
           />
         </label>
         <label>
-          <span>Estrategia de Cobranca</span>
+          <span>Billing Strategy</span>
           <select
             value={billingStrategy}
             onChange={(e) => setBillingStrategy(Number(e.target.value))}
           >
-            <option value={1}>Imediata</option>
-            <option value={2}>Primeiro dia do mes</option>
+            <option value={1}>Immediate</option>
+            <option value={2}>First day of month</option>
           </select>
         </label>
 
         <div className="admin-form-actions">
           <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? "Salvando..." : store ? "Atualizar Loja" : "Criar Loja"}
+            {saving ? "Saving..." : store ? "Update Store" : "Create Store"}
           </button>
           {store && (
             <button
@@ -123,7 +129,7 @@ export function StorePage() {
               onClick={handleDelete}
               disabled={saving}
             >
-              Excluir Loja
+              Delete Store
             </button>
           )}
         </div>

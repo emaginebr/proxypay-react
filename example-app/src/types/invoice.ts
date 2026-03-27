@@ -3,9 +3,14 @@
 export interface InvoiceRow {
   invoiceId: number;
   invoiceNumber: string;
-  amount: number;
   status: number;
-  statusText: string;
-  createdAt: string;
+  paymentMethod: number;
+  discount: number;
+  dueDate: string;
   paidAt: string | null;
+  createdAt: string;
+  customer?: {
+    name: string;
+    email: string;
+  };
 }

@@ -2,11 +2,14 @@
 
 export interface BillingRow {
   billingId: number;
-  invoiceId: number;
-  invoiceNumber: string;
   frequency: number;
   paymentMethod: number;
-  amount: number;
-  status: string;
+  billingStartDate: string;
+  status: number;
   createdAt: string;
+  customer?: {
+    customerId: number;
+    name: string;
+    email: string;
+  };
 }

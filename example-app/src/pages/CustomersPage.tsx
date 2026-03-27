@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useCustomer } from "../hooks/useCustomer";
+import { SkeletonTable } from "../components/Skeleton";
 
 export function CustomersPage() {
   const { customers, loading, error, loadCustomers } = useCustomer();
@@ -12,25 +13,25 @@ export function CustomersPage() {
 
   return (
     <div className="page admin-page">
-      <h1>Clientes</h1>
+      <h1>Customers</h1>
 
       {error && <div className="admin-error">{error}</div>}
 
       {loading ? (
-        <p>Carregando...</p>
+        <SkeletonTable rows={5} cols={6} />
       ) : customers.length === 0 ? (
-        <p className="admin-empty">Nenhum cliente encontrado.</p>
+        <p className="admin-empty">No customers found.</p>
       ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nome</th>
+                <th>Name</th>
                 <th>Email</th>
-                <th>CPF</th>
-                <th>Telefone</th>
-                <th>Criado em</th>
+                <th>Document ID</th>
+                <th>Phone</th>
+                <th>Created</th>
               </tr>
             </thead>
             <tbody>
@@ -41,7 +42,7 @@ export function CustomersPage() {
                   <td>{c.email}</td>
                   <td>{c.documentId}</td>
                   <td>{c.cellphone}</td>
-                  <td>{new Date(c.createdAt).toLocaleDateString("pt-BR")}</td>
+                  <td>{new Date(c.createdAt).toLocaleDateString("en-US")}</td>
                 </tr>
               ))}
             </tbody>
@@ -55,15 +56,15 @@ export function CustomersPage() {
           disabled={page === 0}
           onClick={() => setPage((p) => p - 1)}
         >
-          Anterior
+          Previous
         </button>
-        <span>Pagina {page + 1}</span>
+        <span>Page {page + 1}</span>
         <button
           className="btn btn-secondary"
           disabled={customers.length < pageSize}
           onClick={() => setPage((p) => p + 1)}
         >
-          Proxima
+          Next
         </button>
       </div>
     </div>

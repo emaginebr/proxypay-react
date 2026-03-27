@@ -6,6 +6,7 @@ import {
   type CustomerInfo,
   type InvoiceItem,
 } from "proxypay-react";
+import { FullscreenLoading } from "../components/FullscreenLoading";
 
 const config = {
   baseUrl: import.meta.env.VITE_API_BASE_URL,
@@ -16,22 +17,22 @@ const config = {
 const paymentMethodLabels: Record<PaymentMethod, string> = {
   [PaymentMethod.Pix]: "PIX",
   [PaymentMethod.Boleto]: "Boleto",
-  [PaymentMethod.CreditCard]: "Cartao de Credito",
-  [PaymentMethod.DebitCard]: "Cartao de Debito",
+  [PaymentMethod.CreditCard]: "Credit Card",
+  [PaymentMethod.DebitCard]: "Debit Card",
 };
 
 export function DemoInvoice() {
   const [customer, setCustomer] = useState<CustomerInfo>({
-    name: "Joao Silva",
+    name: "John Doe",
     documentId: "12345678900",
     cellphone: "11999999999",
-    email: "joao@email.com",
+    email: "john@email.com",
   });
 
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: "PROD-001",
-      description: "Consultoria - 10 horas",
+      description: "Consulting - 10 hours",
       quantity: 10,
       unitPrice: 150.0,
       discount: 0,
@@ -41,17 +42,19 @@ export function DemoInvoice() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     PaymentMethod.CreditCard,
   );
-  const [completionUrl, setCompletionUrl] = useState(
-    window.location.origin + "/demo/invoice?status=success",
-  );
-  const [returnUrl, setReturnUrl] = useState(
-    window.location.origin + "/demo/invoice",
-  );
+  const completionUrl = window.location.origin + "/demo/complete?status=success&from=invoice";
+  const returnUrl = window.location.origin + "/demo/invoice";
   const [notes, setNotes] = useState("");
+  const [dueDate, setDueDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split("T")[0];
+  });
+  const [redirecting, setRedirecting] = useState(false);
   const [log, setLog] = useState<string[]>([]);
 
   const addLog = (msg: string) => {
-    const time = new Date().toLocaleTimeString("pt-BR");
+    const time = new Date().toLocaleTimeString("en-US");
     setLog((prev) => [`[${time}] ${msg}`, ...prev].slice(0, 20));
   };
 
@@ -78,21 +81,22 @@ export function DemoInvoice() {
 
   return (
     <ProxyPayProvider config={config}>
+      {redirecting && <FullscreenLoading message="Creating invoice and redirecting..." />}
       <div className="page demo-page">
         <h1>Demo Invoice Payment</h1>
         <p className="demo-intro">
-          Configure os dados abaixo e clique no botao para testar o componente
-          <code> InvoicePayment</code>. Voce sera redirecionado para a pagina de
-          pagamento.
+          Configure the data below and click the button to test the
+          <code> InvoicePayment</code> component. You will be redirected to the
+          payment page.
         </p>
 
         <div className="demo-grid">
           {/* Form */}
           <div className="demo-form">
-            <h2>Dados do Cliente</h2>
+            <h2>Customer Data</h2>
             <div className="form-grid">
               <label>
-                <span>Nome</span>
+                <span>Name</span>
                 <input
                   type="text"
                   value={customer.name}
@@ -102,7 +106,7 @@ export function DemoInvoice() {
                 />
               </label>
               <label>
-                <span>CPF</span>
+                <span>Document ID</span>
                 <input
                   type="text"
                   value={customer.documentId}
@@ -116,7 +120,7 @@ export function DemoInvoice() {
                 />
               </label>
               <label>
-                <span>Telefone</span>
+                <span>Phone</span>
                 <input
                   type="text"
                   value={customer.cellphone}
@@ -140,7 +144,7 @@ export function DemoInvoice() {
             <h2>Item</h2>
             <div className="form-grid">
               <label>
-                <span>Descricao</span>
+                <span>Description</span>
                 <input
                   type="text"
                   value={items[0].description}
@@ -148,7 +152,7 @@ export function DemoInvoice() {
                 />
               </label>
               <label>
-                <span>Preco (R$)</span>
+                <span>Price (R$)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -157,7 +161,7 @@ export function DemoInvoice() {
                 />
               </label>
               <label>
-                <span>Quantidade</span>
+                <span>Quantity</span>
                 <input
                   type="number"
                   min="1"
@@ -166,7 +170,7 @@ export function DemoInvoice() {
                 />
               </label>
               <label>
-                <span>Desconto (R$)</span>
+                <span>Discount (R$)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -176,10 +180,10 @@ export function DemoInvoice() {
               </label>
             </div>
 
-            <h2>Configuracao</h2>
+            <h2>Configuration</h2>
             <div className="form-grid">
               <label>
-                <span>Metodo de Pagamento</span>
+                <span>Payment Method</span>
                 <select
                   value={paymentMethod}
                   onChange={(e) =>
@@ -194,28 +198,20 @@ export function DemoInvoice() {
                 </select>
               </label>
               <label>
-                <span>Notas (opcional)</span>
+                <span>Due Date</span>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+              </label>
+              <label>
+                <span>Notes (optional)</span>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Observacoes na fatura"
-                />
-              </label>
-              <label>
-                <span>URL de Conclusao</span>
-                <input
-                  type="text"
-                  value={completionUrl}
-                  onChange={(e) => setCompletionUrl(e.target.value)}
-                />
-              </label>
-              <label>
-                <span>URL de Retorno</span>
-                <input
-                  type="text"
-                  value={returnUrl}
-                  onChange={(e) => setReturnUrl(e.target.value)}
+                  placeholder="Invoice notes"
                 />
               </label>
             </div>
@@ -231,10 +227,17 @@ export function DemoInvoice() {
               completionUrl={completionUrl}
               returnUrl={returnUrl}
               notes={notes || undefined}
-              onError={(err) => addLog(`Erro: ${err.message}`)}
+              dueDate={dueDate}
+              onError={(err) => {
+                setRedirecting(false);
+                addLog(`Error: ${err.message}`);
+              }}
             >
-              <button className="btn btn-primary demo-pay-btn">
-                Pagar R$ {total.toFixed(2)} com{" "}
+              <button
+                className="btn btn-primary demo-pay-btn"
+                onClick={() => setRedirecting(true)}
+              >
+                Pay R$ {total.toFixed(2)} with{" "}
                 {paymentMethodLabels[paymentMethod]}
               </button>
             </InvoicePayment>
@@ -245,21 +248,21 @@ export function DemoInvoice() {
             <h2>Event Log</h2>
             <div className="demo-info-box">
               <p>
-                Ao clicar em "Pagar", a API cria uma fatura e redireciona
-                para a pagina de pagamento do AbacatePay.
+                When you click "Pay", the API creates an invoice and redirects
+                to the AbacatePay payment page.
               </p>
               <p>
-                Apos o pagamento, voce sera redirecionado para a{" "}
-                <strong>URL de Conclusao</strong>.
+                After payment, you will be redirected to the{" "}
+                <strong>Completion URL</strong>.
               </p>
               <p>
-                Se cancelar, volta para a <strong>URL de Retorno</strong>.
+                If cancelled, you return to the <strong>Return URL</strong>.
               </p>
             </div>
             <div className="log-entries">
               {log.length === 0 && (
                 <p className="log-empty">
-                  Clique em "Pagar" para ver os eventos aqui.
+                  Click "Pay" to see events here.
                 </p>
               )}
               {log.map((entry, i) => (

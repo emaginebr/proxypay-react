@@ -7,6 +7,7 @@ import {
   type CustomerInfo,
   type BillingItem,
 } from "proxypay-react";
+import { FullscreenLoading } from "../components/FullscreenLoading";
 
 const config = {
   baseUrl: import.meta.env.VITE_API_BASE_URL,
@@ -17,28 +18,28 @@ const config = {
 const paymentMethodLabels: Record<PaymentMethod, string> = {
   [PaymentMethod.Pix]: "PIX",
   [PaymentMethod.Boleto]: "Boleto",
-  [PaymentMethod.CreditCard]: "Cartao de Credito",
-  [PaymentMethod.DebitCard]: "Cartao de Debito",
+  [PaymentMethod.CreditCard]: "Credit Card",
+  [PaymentMethod.DebitCard]: "Debit Card",
 };
 
 const frequencyLabels: Record<BillingFrequency, string> = {
-  [BillingFrequency.Monthly]: "Mensal",
-  [BillingFrequency.Quarterly]: "Trimestral",
-  [BillingFrequency.Semiannual]: "Semestral",
-  [BillingFrequency.Annual]: "Anual",
+  [BillingFrequency.Monthly]: "Monthly",
+  [BillingFrequency.Quarterly]: "Quarterly",
+  [BillingFrequency.Semiannual]: "Semiannual",
+  [BillingFrequency.Annual]: "Annual",
 };
 
 export function DemoBilling() {
   const [customer, setCustomer] = useState<CustomerInfo>({
-    name: "Joao Silva",
+    name: "John Doe",
     documentId: "12345678900",
     cellphone: "11999999999",
-    email: "joao@email.com",
+    email: "john@email.com",
   });
 
   const [items, setItems] = useState<BillingItem[]>([
     {
-      description: "Plano Pro",
+      description: "Pro Plan",
       quantity: 1,
       unitPrice: 99.9,
       discount: 0,
@@ -54,16 +55,13 @@ export function DemoBilling() {
   const [billingStartDate, setBillingStartDate] = useState(
     new Date(Date.now() + 86400000).toISOString().slice(0, 10),
   );
-  const [completionUrl, setCompletionUrl] = useState(
-    window.location.origin + "/demo/billing?status=success",
-  );
-  const [returnUrl, setReturnUrl] = useState(
-    window.location.origin + "/demo/billing",
-  );
+  const completionUrl = window.location.origin + "/demo/complete?status=success&from=billing";
+  const returnUrl = window.location.origin + "/demo/billing";
+  const [redirecting, setRedirecting] = useState(false);
   const [log, setLog] = useState<string[]>([]);
 
   const addLog = (msg: string) => {
-    const time = new Date().toLocaleTimeString("pt-BR");
+    const time = new Date().toLocaleTimeString("en-US");
     setLog((prev) => [`[${time}] ${msg}`, ...prev].slice(0, 20));
   };
 
@@ -90,21 +88,22 @@ export function DemoBilling() {
 
   return (
     <ProxyPayProvider config={config}>
+      {redirecting && <FullscreenLoading message="Creating subscription and redirecting..." />}
       <div className="page demo-page">
         <h1>Demo Billing Payment</h1>
         <p className="demo-intro">
-          Configure os dados abaixo e clique no botao para testar o componente
-          <code> BillingPayment</code> (assinatura recorrente). Voce sera
-          redirecionado para a pagina de pagamento.
+          Configure the data below and click the button to test the
+          <code> BillingPayment</code> component (recurring subscription). You will be
+          redirected to the payment page.
         </p>
 
         <div className="demo-grid">
           {/* Form */}
           <div className="demo-form">
-            <h2>Dados do Cliente</h2>
+            <h2>Customer Data</h2>
             <div className="form-grid">
               <label>
-                <span>Nome</span>
+                <span>Name</span>
                 <input
                   type="text"
                   value={customer.name}
@@ -114,7 +113,7 @@ export function DemoBilling() {
                 />
               </label>
               <label>
-                <span>CPF</span>
+                <span>Document ID</span>
                 <input
                   type="text"
                   value={customer.documentId}
@@ -128,7 +127,7 @@ export function DemoBilling() {
                 />
               </label>
               <label>
-                <span>Telefone</span>
+                <span>Phone</span>
                 <input
                   type="text"
                   value={customer.cellphone}
@@ -149,10 +148,10 @@ export function DemoBilling() {
               </label>
             </div>
 
-            <h2>Plano</h2>
+            <h2>Plan</h2>
             <div className="form-grid">
               <label>
-                <span>Descricao</span>
+                <span>Description</span>
                 <input
                   type="text"
                   value={items[0].description}
@@ -160,7 +159,7 @@ export function DemoBilling() {
                 />
               </label>
               <label>
-                <span>Preco (R$)</span>
+                <span>Price (R$)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -169,7 +168,7 @@ export function DemoBilling() {
                 />
               </label>
               <label>
-                <span>Quantidade</span>
+                <span>Quantity</span>
                 <input
                   type="number"
                   min="1"
@@ -178,7 +177,7 @@ export function DemoBilling() {
                 />
               </label>
               <label>
-                <span>Desconto (R$)</span>
+                <span>Discount (R$)</span>
                 <input
                   type="number"
                   step="0.01"
@@ -188,10 +187,10 @@ export function DemoBilling() {
               </label>
             </div>
 
-            <h2>Configuracao da Assinatura</h2>
+            <h2>Subscription Configuration</h2>
             <div className="form-grid">
               <label>
-                <span>Frequencia</span>
+                <span>Frequency</span>
                 <select
                   value={frequency}
                   onChange={(e) =>
@@ -206,7 +205,7 @@ export function DemoBilling() {
                 </select>
               </label>
               <label>
-                <span>Metodo de Pagamento</span>
+                <span>Payment Method</span>
                 <select
                   value={paymentMethod}
                   onChange={(e) =>
@@ -221,30 +220,11 @@ export function DemoBilling() {
                 </select>
               </label>
               <label>
-                <span>Data de Inicio</span>
+                <span>Start Date</span>
                 <input
                   type="date"
                   value={billingStartDate}
                   onChange={(e) => setBillingStartDate(e.target.value)}
-                />
-              </label>
-              <label>
-                <span>&nbsp;</span>
-              </label>
-              <label>
-                <span>URL de Conclusao</span>
-                <input
-                  type="text"
-                  value={completionUrl}
-                  onChange={(e) => setCompletionUrl(e.target.value)}
-                />
-              </label>
-              <label>
-                <span>URL de Retorno</span>
-                <input
-                  type="text"
-                  value={returnUrl}
-                  onChange={(e) => setReturnUrl(e.target.value)}
                 />
               </label>
             </div>
@@ -262,10 +242,16 @@ export function DemoBilling() {
               billingStartDate={billingStartDate + "T00:00:00"}
               completionUrl={completionUrl}
               returnUrl={returnUrl}
-              onError={(err) => addLog(`Erro: ${err.message}`)}
+              onError={(err) => {
+                setRedirecting(false);
+                addLog(`Error: ${err.message}`);
+              }}
             >
-              <button className="btn btn-primary demo-pay-btn">
-                Assinar {frequencyLabels[frequency].toLowerCase()} — R${" "}
+              <button
+                className="btn btn-primary demo-pay-btn"
+                onClick={() => setRedirecting(true)}
+              >
+                Subscribe {frequencyLabels[frequency].toLowerCase()} — R${" "}
                 {total.toFixed(2)}
               </button>
             </BillingPayment>
@@ -276,21 +262,21 @@ export function DemoBilling() {
             <h2>Event Log</h2>
             <div className="demo-info-box">
               <p>
-                Ao clicar em "Assinar", a API cria uma cobranca recorrente e
-                redireciona para a pagina de pagamento do AbacatePay.
+                When you click "Subscribe", the API creates a recurring charge and
+                redirects to the AbacatePay payment page.
               </p>
               <p>
-                Apos o pagamento, voce sera redirecionado para a{" "}
-                <strong>URL de Conclusao</strong>.
+                After payment, you will be redirected to the{" "}
+                <strong>Completion URL</strong>.
               </p>
               <p>
-                Se cancelar, volta para a <strong>URL de Retorno</strong>.
+                If cancelled, you return to the <strong>Return URL</strong>.
               </p>
             </div>
             <div className="log-entries">
               {log.length === 0 && (
                 <p className="log-empty">
-                  Clique em "Assinar" para ver os eventos aqui.
+                  Click "Subscribe" to see events here.
                 </p>
               )}
               {log.map((entry, i) => (

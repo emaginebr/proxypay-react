@@ -5,11 +5,13 @@ import { getHeaders, handleResponse, graphql, API_BASE_URL } from './apiHelpers'
 class StoreService {
   /** Fetch current user's store via GraphQL */
   async fetchMyStore(token: string): Promise<StoreInfo | null> {
-    const data = await graphql<{ myStore: StoreInfo[] }>(
+    const data = await graphql<{ myStore: StoreInfo | StoreInfo[] }>(
       token,
       `{ myStore { storeId clientId name email billingStrategy createdAt updatedAt } }`,
     );
-    return data.myStore?.[0] ?? null;
+    const result = data.myStore;
+    if (Array.isArray(result)) return result[0] ?? null;
+    return result ?? null;
   }
 
   /** Create a new store */
