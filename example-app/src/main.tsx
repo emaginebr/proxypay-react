@@ -50,7 +50,7 @@ function RequireStore({ children }: { children: React.ReactNode }) {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/proxypay">
       <NAuthProvider
         config={{
           apiUrl: import.meta.env.VITE_NAUTH_API_URL || "http://localhost:5000",
